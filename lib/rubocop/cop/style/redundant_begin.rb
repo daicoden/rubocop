@@ -22,12 +22,20 @@ module Rubocop
 
         MSG = 'Redundant `begin` block detected.'
 
-        private
-
         def check(_node, _method_name, _args, body)
           return unless body && body.type == :kwbegin
 
           add_offense(body, :begin)
+        end
+
+        def autocorrect(node)
+          @corrections << lambda do |corrector|
+            # s = node.children.last.loc.column
+            corrector.replace(
+              node.loc.expression,
+              node.children.map { |c| c.loc.expression.source }.join
+            )
+          end
         end
       end
     end
