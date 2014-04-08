@@ -21,6 +21,21 @@ module Rubocop
         _lhs, _op, rhs = *node
         check_assignment(node, rhs)
       end
+
+      ELEMENT_SETTERS = [:[]=]
+
+      def on_send(node)
+        _receiver, method_name = *node
+        if ELEMENT_SETTERS.include?(method_name)
+          _receiver, _setter, _key, rhs = *node
+        elsif method_name.to_s.end_with?('=') # setter
+          _receiver, _setter, rhs = *node
+        else
+          return
+        end
+
+        check_assignment(node, rhs)
+      end
     end
   end
 end
