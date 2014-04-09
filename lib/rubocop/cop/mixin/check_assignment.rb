@@ -22,19 +22,11 @@ module Rubocop
         check_assignment(node, rhs)
       end
 
-      ELEMENT_SETTERS = [:[]=]
-
       def on_send(node)
-        _receiver, method_name = *node
-        if ELEMENT_SETTERS.include?(method_name)
-          _receiver, _setter, _key, rhs = *node
-        elsif method_name.to_s.end_with?('=') # setter
-          _receiver, _setter, rhs = *node
-        else
-          return
-        end
+        rhs = node.children.last
 
-        check_assignment(node, rhs)
+        # This will match if, case, begin, blocks, etc.
+        check_assignment(node, rhs) if rhs && rhs.respond_to?(:type)
       end
     end
   end
